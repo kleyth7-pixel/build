@@ -1,0 +1,26 @@
+name: Build
+
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup MinGW
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          install: mingw-w64-x86_64-gcc
+          
+      - name: Compile
+        shell: msys2 {0}
+        run: |
+          g++ -std=c++17 -O2 -static -mwindows -o zero.exe zero.cpp -lstdc++fs -lurlmon -lwininet -ladvapi32 -luser32 -lkernel32 -lpsapi
+          
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: malware
+          path: zero.exe
